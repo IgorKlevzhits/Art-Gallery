@@ -78,10 +78,6 @@ class ViewController: UIViewController {
             
         }.resume()
         
-//        dataSource = Array(repeating: Artist(photo: UIImage(named: "PabloPicassoPhoto")!,
-//                                             name: "Pablo Picasso",
-//                                             description: "Pablo Ruiz y Picasso (25 October 1881 – 8 April 19..."),
-//                           count: 100)
         view.backgroundColor = .white
         setViews()
         setupConstraints()
@@ -147,7 +143,11 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
         return 125
     }
     
-    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let artist = dataSource.artists[indexPath.row]
+        navigationController?.pushViewController(DetailAtristViewController(with: artist), animated: true)
+    }
+
 }
 
 

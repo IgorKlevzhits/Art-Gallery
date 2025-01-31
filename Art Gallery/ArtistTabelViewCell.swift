@@ -25,7 +25,7 @@ class ArtistTabelViewCell: UITableViewCell {
         return element
     }()
     
-    private lazy var artistBionLabel: UILabel = {
+    private lazy var artistBioLabel: UILabel = {
         let element = UILabel()
         element.numberOfLines = 2
         element.font = .systemFont(ofSize: 18, weight: .medium)
@@ -49,7 +49,7 @@ class ArtistTabelViewCell: UITableViewCell {
     func configureCell(with artist: Artist) {
         photoArtistImageView.image = UIImage(named: artist.image)
         artistNameLabel.text = artist.name
-        artistBionLabel.text = artist.bio
+        artistBioLabel.text = artist.bio
     }
     
     private func setupLayout() {
@@ -58,7 +58,7 @@ class ArtistTabelViewCell: UITableViewCell {
         
         contentView.addSubview(photoArtistImageView)
         contentView.addSubview(artistNameLabel)
-        contentView.addSubview(artistBionLabel)
+        contentView.addSubview(artistBioLabel)
         
         NSLayoutConstraint.activate([
             photoArtistImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
@@ -69,11 +69,11 @@ class ArtistTabelViewCell: UITableViewCell {
             artistNameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
             artistNameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             artistNameLabel.leadingAnchor.constraint(equalTo: photoArtistImageView.trailingAnchor, constant: 10),
-            artistNameLabel.bottomAnchor.constraint(equalTo: artistBionLabel.topAnchor, constant: 10),
+            artistNameLabel.bottomAnchor.constraint(equalTo: artistBioLabel.topAnchor, constant: 10),
             
-            artistBionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            artistBionLabel.leadingAnchor.constraint(equalTo: photoArtistImageView.trailingAnchor, constant: 10),
-            artistBionLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10)
+            artistBioLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            artistBioLabel.leadingAnchor.constraint(equalTo: photoArtistImageView.trailingAnchor, constant: 10),
+            artistBioLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10)
         ])
         
     }

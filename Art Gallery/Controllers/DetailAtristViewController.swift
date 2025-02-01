@@ -13,7 +13,6 @@ class DetailAtristViewController: UIViewController {
     
     private lazy var scrollView: UIScrollView = {
         let element = UIScrollView()
-//        element.showsVerticalScrollIndicator = false
         element.alwaysBounceVertical = true
         element.translatesAutoresizingMaskIntoConstraints = false
         return element
@@ -78,9 +77,27 @@ class DetailAtristViewController: UIViewController {
         return element
     }()
     
+    private lazy var backButton: UIButton = {
+        let element = UIButton(type: .system)
+        element.tintColor = .white
+        element.setImage(UIImage(systemName: "arrow.backward"), for: .normal)
+        element.translatesAutoresizingMaskIntoConstraints = false
+        return element
+    }()
+    
     // MARK: - Private Properties
     
     private var artist: Artist?
+    
+    // MARK: - Private Methods
+    
+    @objc private func paitingTapped(_ sender: UIButton) {
+        navigationController?.pushViewController(PaitingViewController(with: artist!.works[sender.tag]), animated: true)
+    }
+    
+    @objc private func backButtonTapped(_ sender: UIButton) {
+        navigationController?.popViewController(animated: true)
+    }
     
     // MARK: - Life Cycle
     
@@ -96,12 +113,18 @@ class DetailAtristViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-//        self.navigationController?.setNavigationBarHidden(true, animated: false)
         
         setViews()
         setupConstraints()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
+        self.navigationController?.navigationBar.isHidden = true
+        let backButtonItem = UIBarButtonItem()
+            backButtonItem.title = ""
+            navigationItem.backBarButtonItem = backButtonItem
+    }
     
 }
 
@@ -123,8 +146,16 @@ extension DetailAtristViewController {
         scrollView.addSubview(bioTextLabel)
         scrollView.addSubview(worksLabel)
         scrollView.addSubview(worksStackView)
+        view.addSubview(backButton)
         
-        for work in artist!.works {
+        backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
+        
+        for (index, work) in artist!.works.enumerated()  {
+            
+            let button = UIButton(type: .system)
+            button.tag = index
+            button.addTarget(self, action: #selector(paitingTapped), for: .touchUpInside)
+            
             let imageView = UIImageView(image: UIImage(named: work.image))
             imageView.clipsToBounds = true
             imageView.layer.cornerRadius = 20
@@ -139,6 +170,7 @@ extension DetailAtristViewController {
             worksStackView.addArrangedSubview(imageView)
             worksStackView.addArrangedSubview(label)
             worksStackView.addArrangedSubview(spacingView)
+            worksStackView.addArrangedSubview(button)
             
             NSLayoutConstraint.activate([
                 imageView.leadingAnchor.constraint(equalTo: worksStackView.leadingAnchor),
@@ -149,7 +181,12 @@ extension DetailAtristViewController {
                 label.trailingAnchor.constraint(equalTo: worksStackView.trailingAnchor),
                 label.heightAnchor.constraint(equalToConstant: 30),
                 
-                spacingView.heightAnchor.constraint(equalToConstant: 10)
+                spacingView.heightAnchor.constraint(equalToConstant: 10),
+                
+                button.topAnchor.constraint(equalTo: imageView.topAnchor),
+                button.leadingAnchor.constraint(equalTo: worksStackView.leadingAnchor),
+                button.trailingAnchor.constraint(equalTo: worksStackView.trailingAnchor),
+                button.bottomAnchor.constraint(equalTo: label.bottomAnchor)
             ])
         }
         
@@ -191,8 +228,10 @@ extension DetailAtristViewController {
             worksStackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 20),
             worksStackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -20),
             worksStackView.topAnchor.constraint(equalTo: worksLabel.bottomAnchor, constant: 20),
-            worksStackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -20)
+            worksStackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -20),
 
+            backButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 65),
+            backButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 15)
         ])
         
     }

@@ -8,5 +8,5 @@
 import Foundation
 
 struct ArtistsResponse: Decodable {
-    let artists: [Artist]
+    var artists: [Artist]
 }

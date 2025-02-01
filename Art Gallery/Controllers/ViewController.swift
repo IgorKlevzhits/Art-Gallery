@@ -32,6 +32,7 @@ class ViewController: UIViewController {
         element.searchTextField.font = .systemFont(ofSize: 16)
         element.placeholder = "Search"
         element.searchBarStyle = .minimal
+        element.delegate = self
         element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
@@ -42,6 +43,7 @@ class ViewController: UIViewController {
         element.dataSource = self
         element.delegate = self
         element.register(ArtistTabelViewCell.self, forCellReuseIdentifier: ArtistTabelViewCell.reuseIdentifier)
+        element.separatorStyle = .none
         element.translatesAutoresizingMaskIntoConstraints = false
         return element
     }()
@@ -51,6 +53,7 @@ class ViewController: UIViewController {
     private let spacing: CGFloat = 20
     
     private var dataSource: ArtistsResponse = ArtistsResponse(artists: [])
+    private var filteredDataSource: ArtistsResponse = ArtistsResponse(artists: []) 
     
     // MARK: - Life Cycle
 
@@ -71,12 +74,25 @@ class ViewController: UIViewController {
             
             do {
                 let artists = try JSONDecoder().decode(ArtistsResponse.self, from: data)
-                self.dataSource = artists
+                DispatchQueue.main.async {
+                    self.dataSource = artists
+                    self.filteredDataSource = artists
+                    self.artistTableView.reloadData()
+                }
             } catch {
                 print(error)
             }
             
         }.resume()
+
+        let backImage = UIImage(systemName: "arrow.backward")?.withTintColor(.white, renderingMode: .alwaysOriginal)
+        
+        navigationController?.navigationBar.backIndicatorImage = backImage
+        navigationController?.navigationBar.backIndicatorTransitionMaskImage = backImage
+        
+        let backButtonItem = UIBarButtonItem()
+        backButtonItem.title = ""
+        navigationItem.backBarButtonItem = backButtonItem
         
         view.backgroundColor = .white
         setViews()
@@ -89,7 +105,6 @@ extension ViewController {
     // MARK: - Set Views
     
     private func setViews() {
-        
         view.addSubview(titleLabel)
         view.addSubview(addButton)
         view.addSubview(searchBar)
@@ -124,7 +139,7 @@ extension ViewController {
 extension ViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return dataSource.artists.count
+        return filteredDataSource.artists.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -134,8 +149,9 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
             for: indexPath)
         as! ArtistTabelViewCell
         
-        let artist = dataSource.artists[indexPath.row]
+        let artist = filteredDataSource.artists[indexPath.row]
         cell.configureCell(with: artist)
+        cell.selectionStyle = .none
         return cell
     }
     
@@ -144,10 +160,26 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let artist = dataSource.artists[indexPath.row]
+        let artist = filteredDataSource.artists[indexPath.row]
         navigationController?.pushViewController(DetailAtristViewController(with: artist), animated: true)
     }
 
 }
 
+extension ViewController: UISearchBarDelegate {
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        // Фильтруем данные на основе текста поиска
+        if searchText.isEmpty {
+            filteredDataSource = dataSource  // Если строка поиска пустая, показываем все
+        } else {
+            filteredDataSource.artists = dataSource.artists.filter { artist in
+                return artist.name.lowercased().contains(searchText.lowercased())  // Фильтрация по имени
+            }
+        }
+        artistTableView.beginUpdates()
+        artistTableView.reloadSections([0], with: .automatic)
+        artistTableView.endUpdates()
+    }
+}
 
